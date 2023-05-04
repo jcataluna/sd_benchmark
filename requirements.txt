@@ -1,0 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cu118
+accelerate
+diffusers==0.15.0
+numpy
+torch==2.0.0
+tqdm
+transformers
