@@ -1,5 +1,7 @@
 # SD benchmark
 
+This is an image generation benchmark for Kaggle's "Stable Diffusion - Image to Prompts" competition.
+
 ## Requirements
 
 ```
