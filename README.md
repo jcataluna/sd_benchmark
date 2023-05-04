@@ -31,7 +31,7 @@ Check `python sd_benchmark.py --help` for available options:
 
 - `--vae-slicing/--no-vae-slicing`: enabling VAE slicing allows a bigger batch size
 - `--safety-checker/--no-safety-checker`: enable NSFW filter
-- `--compile/--no-compile`: compile the Unet (faster at the expense of much lower first batch)
+- `--compile/--no-compile`: compile the Unet (faster at the expense of much slower first batch)
 - `-n`: number of test iterations
 - `--gpu`: run inference on this GPU id
 - `--bs`: batch size
