@@ -52,12 +52,12 @@ if __name__ == '__main__':
 
     prompts = ["A horse is riding an astronaut"] * args.bs
     # Force one time compilation (the first batch would take much longer otherwise)
-    images = pipe(prompts, guidance_scale=9.0, width=512, height=512).images
+    images = pipe(prompts, guidance_scale=9.0, width=args.size, height=args.size).images
     assert len(images) == args.bs
     dts = []
     for _ in tqdm(range(args.n)):
         t0 = time.monotonic()
-        pipe(prompts, guidance_scale=9.0, width=512, height=512).images
+        pipe(prompts, guidance_scale=9.0, width=args.size, height=args.size).images
         dts.append((time.monotonic() - t0) / args.bs)
 
     mean = np.mean(dts)
