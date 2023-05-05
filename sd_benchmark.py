@@ -29,6 +29,7 @@ if __name__ == '__main__':
     parser.add_argument("--no-safety-checker", action='store_false', dest='safety_checker')
     parser.add_argument("--compile", action='store_true', default=True, help="Compile the Unet (faster at the expense of much slower 1st batch)")
     parser.add_argument("--no-compile", action='store_false', dest='compile')
+    parser.add_argument("--size", type=int, default=512)
     parser.add_argument("-n", type=int, default=10, help="Test iterations")
     args = parser.parse_args()
     print("Running with args: ", args)
@@ -51,12 +52,12 @@ if __name__ == '__main__':
 
     prompts = ["A horse is riding an astronaut"] * args.bs
     # Force one time compilation (the first batch would take much longer otherwise)
-    images = pipe(prompts, guidance_scale=9.0).images
+    images = pipe(prompts, guidance_scale=9.0, width=512, height=512).images
     assert len(images) == args.bs
     dts = []
     for _ in tqdm(range(args.n)):
         t0 = time.monotonic()
-        pipe(prompts, guidance_scale=9.0).images
+        pipe(prompts, guidance_scale=9.0, width=512, height=512).images
         dts.append((time.monotonic() - t0) / args.bs)
 
     mean = np.mean(dts)
