@@ -4,9 +4,21 @@ This is an image generation benchmark for Kaggle's "Stable Diffusion - Image to 
 
 ## Requirements
 
+Note that torch 2.0.0's `compile` function is not yet compatible with Python 3.11+.
+
+With venv:
+
 ```
 python3 -m venv sd
 source sd/bin/activate
+pip install -r requirements.txt
+```
+
+With conda:
+
+```
+conda create -n sd python==3.10
+conda activate sd
 pip install -r requirements.txt
 ```
 
