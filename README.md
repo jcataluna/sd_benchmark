@@ -2,7 +2,7 @@
 
 This is an image generation benchmark for Kaggle's "Stable Diffusion - Image to Prompts" competition.
 
-## Requirements
+## Nvidia GPU requirements
 
 Note that torch 2.0.0's `compile` function is not yet compatible with Python 3.11+.
 
@@ -22,11 +22,30 @@ conda activate sd
 pip install -r requirements.txt
 ```
 
+## Google Cloud TPU requirements
+
+```
+sudo apt update
+sudo apt install python3.8-venv
+python3 -m venv sd
+source sd/bin/activate
+pip install -r requirements_tpu.txt
+```
+
 ## Run benchmark
+
+On GPU:
 
 ```
 python sd_benchmark.py
 ```
+
+On TPU:
+
+```
+python sd_benchmark_tpu.py
+```
+
 
 ## Example output
 
@@ -41,7 +60,7 @@ Mean 4.65 sec/img ± 0.01 (95%)
 
 ## Available options
 
-Check `python sd_benchmark.py --help` for available options:
+Check `python sd_benchmark.py --help` for available options. Some options are only available in the GPU version.
 
 - `--vae-slicing/--no-vae-slicing`: enabling VAE slicing allows a bigger batch size
 - `--safety-checker/--no-safety-checker`: enable NSFW filter

@@ -1,0 +1,7 @@
+--find-links https://storage.googleapis.com/jax-releases/libtpu_releases.html
+diffusers==0.16.1
+flax
+jax[tpu]
+numpy
+tqdm
+transformers
