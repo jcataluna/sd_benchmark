@@ -10,7 +10,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 import time
 
-from diffusers import FlaxStableDiffusionPipeline
+from diffusers import FlaxStableDiffusionXLPipeline
 from flax.jax_utils import replicate
 from flax.training.common_utils import shard
 from tqdm import tqdm
@@ -41,13 +41,20 @@ if __name__ == '__main__':
     print(f"Found {num_devices} JAX devices of type {device_type}.")
     assert "TPU" in device_type, "Available device is not a TPU, please select TPU from Edit > Notebook settings > Hardware accelerator"
 
-    pipe, params = FlaxStableDiffusionPipeline.from_pretrained(
-        "stabilityai/stable-diffusion-2-1", 
-        dtype=jnp.bfloat16, 
-        revision="bf16")
-    pipe.set_progress_bar_config(disable=True)
+    pipeline, params = FlaxStableDiffusionXLPipeline.from_pretrained(
+        "stabilityai/stable-diffusion-xl-base-1.0", split_head_dim=True
+    )
+    
+    # Params to bfloat16, but scheduler
+    scheduler_state = params.pop("scheduler")
+    params = jax.tree_util.tree_map(lambda x: x.astype(jnp.bfloat16), params)
+    params["scheduler"] = scheduler_state
+
+
+    pipeline.set_progress_bar_config(disable=True)
+
     if not args.safety_checker:
-        pipe.safety_checker = None # to benchmark just diffusion without nsfw filter
+        pipeline.safety_checker = None # to benchmark just diffusion without nsfw filter
 
     print(f"Using batch size {args.bs}")
 
@@ -55,7 +62,7 @@ if __name__ == '__main__':
     rng = jax.random.split(rng, jax.device_count())
 
     prompt = ["A horse is riding an astronaut"] * args.bs * jax.device_count()
-    prompt_ids = pipe.prepare_inputs(prompt)
+    prompt_ids = pipeline.prepare_inputs(prompt)
 
     # replicate params
     p_params = replicate(params)
@@ -64,7 +71,9 @@ if __name__ == '__main__':
     prompt_ids = shard(prompt_ids)
 
     # Force one time compilation (the first batch would take much longer otherwise)
-    images = pipe(prompt_ids, p_params, rng, jit=True, guidance_scale=9.0, width=args.size, height=args.size).images
+    print(f"First one time compilation ...")
+    images = pipeline(prompt_ids, p_params, rng, jit=True, guidance_scale=9.0, width=args.size, height=args.size).images
+    print(f"First one time compilation DONE")
     assert len(images) == jax.device_count()
     dts = []
     i = 0
@@ -73,7 +82,7 @@ if __name__ == '__main__':
         images = pipe(prompt_ids, p_params, rng, jit=True, guidance_scale=9.0, width=args.size, height=args.size).images
         dts.append((time.monotonic() - t0) / args.bs)
         images = images.reshape(-1, *images.shape[-3:])
-        images = pipe.numpy_to_pil(images)
+        images = pipeline.numpy_to_pil(images)
         for img in images:
             img.save(f'{i:06d}.jpg')
             i += 1
