@@ -6,6 +6,9 @@ from flax.jax_utils import replicate
 from diffusers import FlaxStableDiffusionXLPipeline
 import time
 
+from datasets import load_dataset
+import random 
+
 pipeline, params = FlaxStableDiffusionXLPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-1.0", split_head_dim=True
 )
@@ -18,7 +21,7 @@ default_prompt = "high-quality photo of a baby dolphin ​​playing in a pool a
 default_neg_prompt = "illustration, low-quality"
 default_seed = 33
 default_guidance_scale = 5.0
-default_num_steps = 50
+default_num_steps = 30
 
 def tokenize_prompt(prompt, neg_prompt):
     prompt_ids = pipeline.prepare_inputs(prompt)
@@ -66,12 +69,18 @@ print(f"Compiling ...")
 generate(default_prompt, default_neg_prompt)
 print(f"Compiled in {time.time() - start}")
 
+dataset = load_dataset("Gustavosta/Stable-Diffusion-Prompts", split="test")
+
 dts = []
 i = 0
 for x in range(20):
+    random_index = random.randint(0, len(dataset) - 1)
+    
     start = time.time()
-    prompt = "llama in ancient Greece, oil on canvas"
+    prompt = dataset[random_index]["Prompt"]
     neg_prompt = "cartoon, illustration, animation"
+
+    print(f"Prompt: {prompt}")
     images = generate(prompt, neg_prompt)
     t = time.time() - start
     print(f"Inference in {t}")
@@ -83,7 +92,7 @@ for x in range(20):
 
 mean = np.mean(dts)
 stdev = np.std(dts)
-print(f"batches: {i},  Mean {mean:.2f} sec/img/TPU ± {stdev * 1.96 / np.sqrt(len(dts)):.2f} (95%)")
+print(f"batches: {i},  Mean {mean:.2f} sec/batch± {stdev * 1.96 / np.sqrt(len(dts)):.2f} (95%)")
 
 
 
