@@ -9,6 +9,11 @@ import time
 from datasets import load_dataset
 import random 
 
+# Let's cache the model compilation, so that it doesn't take as long the next time around.
+from jax.experimental.compilation_cache import compilation_cache as cc
+
+cc.initialize_cache("/tmp/sdxl_cache")
+
 pipeline, params = FlaxStableDiffusionXLPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-1.0", split_head_dim=True
 )
@@ -73,7 +78,7 @@ dataset = load_dataset("Gustavosta/Stable-Diffusion-Prompts", split="test")
 
 dts = []
 i = 0
-for x in range(20):
+for x in range(2):
     random_index = random.randint(0, len(dataset) - 1)
     
     start = time.time()
