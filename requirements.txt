@@ -1,7 +1,10 @@
 --extra-index-url https://download.pytorch.org/whl/cu118
+flax
 accelerate
-diffusers==0.15.0
+diffusers
 numpy
-torch==2.0.0
+torch
 tqdm
 transformers
+datasets
+
