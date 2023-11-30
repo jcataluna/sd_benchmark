@@ -14,6 +14,15 @@ from jax.experimental.compilation_cache import compilation_cache as cc
 
 cc.initialize_cache("/tmp/sdxl_cache")
 
+num_devices = jax.device_count()
+device_type = jax.devices()[0].device_kind
+
+print(f"Found {num_devices} JAX devices of type {device_type}.")
+assert "TPU" in device_type, "Available device is not a TPU, please select TPU from Runtime > Change runtime type > Hardware accelerator"
+
+
+
+
 pipeline, params = FlaxStableDiffusionXLPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-1.0", split_head_dim=True
 )
